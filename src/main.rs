@@ -23,7 +23,7 @@ fn main() {
             }
         }
         Err(_) => {
-            println!(" 📁 No save file found. Starting a fresh index.");
+            println!("\n    (・_・)ゞ 📁 No save file found. Starting a fresh index.");
         }
     };
 
@@ -43,7 +43,7 @@ fn main() {
             break;
         }
 
-        if raw_text == "list" {
+        if raw_text == "list" || raw_text == "ls" {
             // Load list from database
             list_from_database(&database);
             continue;
@@ -88,7 +88,7 @@ fn process_data( raw_text: &str, database: &mut Vec<String>) {
     match command {
         "add" => {
             if target.is_empty() {
-                println!("\n C(^_-) annot add an empty target!");
+                println!("\n (^_-) Cannot add an empty target!");
             } else if database.contains(&target.to_string()) {
                 println!("\n ヽ(´ｰ｀)┌ Cannot have duplicate target '{}'", target);
             } else {
@@ -104,7 +104,7 @@ fn process_data( raw_text: &str, database: &mut Vec<String>) {
                 println!("\n '{}' is not in index.", target);
             }
         }
-        "remove" => {
+        "remove" | "rm" => {
             // here too I need a method of accessing the .txt file and removing a target and save
             if let Some(index) = database.iter().position(|x| x == target) {
                 database.remove(index);
