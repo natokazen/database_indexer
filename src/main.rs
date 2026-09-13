@@ -16,6 +16,17 @@ fn main() {
 
     let mut database: Vec<String> = vec![];
 
+    match std::fs::read_to_string("database.txt") {
+        Ok(content) => {
+            for line in content.lines() {
+                database.push(line.to_string());
+            }
+        }
+        Err(_) => {
+            println!(" 📁 No save file found. Starting a fresh index.");
+        }
+    };
+
     loop {
         print!("\n  Enter a command and target: ");
         io::stdout().flush().unwrap();
@@ -26,6 +37,16 @@ fn main() {
         let raw_text = user_input.trim();
 
         if raw_text == "quit" || raw_text == "q" {
+
+            if let Ok(mut file) = std::fs::File::create("database.txt") {
+                for item in &database {
+                    writeln!(file, "{}", item).expect("Failed to write line to disk");
+                }
+                println!("\n  Data safely synced to disk.");
+            } else {
+                println!("\n  Error: Could not access disk.");
+            }
+
             println!("\n  Exitting program..., Goodbye ( ´ ▽ ` )ﾉ");
             break;
         }
@@ -51,9 +72,10 @@ fn main() {
             "add" => {
                 if target.is_empty() {
                     println!("\n C(^_-) annot add an empty target!");
-                }else if database.contains(&target.to_string()) {
-                   println!("\n ヽ(´ｰ｀)┌ Cannot have duplicate target '{}'", target);
+                } else if database.contains(&target.to_string()) {
+                    println!("\n ヽ(´ｰ｀)┌ Cannot have duplicate target '{}'", target);
                 } else {
+                    // I need to add file openning and writing here to store in a .txt file to ssd
                     database.push(target.to_string());
                     println!("\n '{}' added to index", target);
                 }
@@ -66,6 +88,7 @@ fn main() {
                 }
             }
             "remove" => {
+                // here too I need a method of accessing the .txt file and removing a target and save
                 if let Some(index) = database.iter().position(|x| x == target) {
                     database.remove(index);
                     println!(" Target '{}' removed", target);
