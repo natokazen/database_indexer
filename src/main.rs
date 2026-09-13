@@ -45,7 +45,7 @@ fn main() {
 
         if raw_text == "list" {
             // Load list from database
-            load_from_database(&database);
+            list_from_database(&database);
             continue;
         }
 
@@ -66,7 +66,7 @@ fn save_to_database(database: &Vec<String>) {
     }
 }
 
-fn load_from_database(database: &[String]) {
+fn list_from_database(database: &[String]) {
 
     if database.is_empty() {
         println!("\n 乁( •_• )ㄏ No targets found, database is empty.");
