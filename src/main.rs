@@ -1,5 +1,13 @@
 use std::io::{self, Write};
 
+struct Engine {
+    database: Vec<String>,
+}
+
+impl Engine {
+    
+}
+
 fn main() {
     print!("{}[2J{}[1;1H", 27 as char, 27 as char);
     println!(
