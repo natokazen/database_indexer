@@ -1,5 +1,45 @@
 use std::io::{self, Write};
 
+
+enum LogCommand {
+    Add(String),
+    Check(String),
+    Remove(String),
+    List,
+    Unknown
+}
+
+impl LogCommand {
+    fn parse(raw_text: &str) -> LogCommand {
+
+        if raw_text == "list" || raw_text == "ls" {
+            return LogCommand::List;
+        }
+
+        if let Some((cmd, tgt)) = raw_text.split_once([' ', ':']) {
+
+            let target = tgt.trim_start_matches([' ', ':']);
+
+            if target.is_empty() {
+                return LogCommand::Unknown;
+            }
+
+            match cmd {
+                "add" => LogCommand::Add(target.to_string()),
+                "remove" => LogCommand::Remove(target.to_string()),
+                "check" => LogCommand::Check(target.to_string()),
+                _ => LogCommand::Unknown
+            }
+
+        } else {
+            LogCommand::Unknown
+        }
+
+
+
+    }
+}
+
 struct Engine {
     database: Vec<String>,
 }
@@ -44,14 +84,10 @@ impl Engine {
         }
     }
 
-    fn process_data(&mut self, raw_text: &str) {
-        let (command, target) = match raw_text.split_once([' ', ':']) {
-            Some((cmd, tgt)) => (cmd, tgt.trim_start_matches([' ', ':'])),
-            None => (raw_text, ""),
-        };
+    fn process_data(&mut self, command: LogCommand) {
 
         match command {
-            "add" => {
+            LogCommand::Add(target) => {
                 if target.is_empty() {
                     println!("\n (^_-) Cannot add an empty target!");
                 } else if self.database.contains(&target.to_string()) {
@@ -62,28 +98,30 @@ impl Engine {
                     println!("\n '{}' added to index", target);
                 }
             }
-            "check" => {
+            LogCommand::List => {
+                self.list_from_database();
+            }
+            LogCommand::Check(target) => {
                 if self.database.contains(&target.to_string()) {
                     println!("\n '{}' exists in index.", target);
                 } else {
                     println!("\n '{}' is not in index.", target);
                 }
             }
-            "remove" | "rm" => {
+            LogCommand::Remove(target) => {
                 // here too I need a method of accessing the .txt file and removing a target and save
-                if let Some(index) = self.database.iter().position(|x| x == target) {
+                if let Some(index) = self.database.iter().position(|x| x == &target) {
                     self.database.remove(index);
                     println!(" Target '{}' removed", target);
                 } else {
                     println!("Target '{}' not found", target);
                 }
             }
-            _ => {
+            LogCommand::Unknown => {
                 println!("\n (・_・?) -- Not a command");
             }
         };
 
-        println!("   󰘍 Command - {:?} on Target - {:?}", command, target);
     }
 }
 
@@ -122,14 +160,9 @@ fn main() {
             break;
         }
 
-        if raw_text == "list" || raw_text == "ls" {
-            // Load list from database
-            engine.list_from_database();
-            continue;
-        }
-
+        let command = LogCommand::parse(raw_text);
         // Finally process the data
-        engine.process_data(raw_text);
+        engine.process_data(command);
     }
 }
 
